@@ -18,10 +18,7 @@ async def autenticar_usuario(credentials: HTTPBasicCredentials = Depends(securit
       headers={"WWW-Authenticate": "Basic"},
     )
   
-  
   return credentials.username
-
-
 
 @user.get('/users')
 async def find_all_users():
