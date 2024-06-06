@@ -1,4 +1,3 @@
-from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from config.db import conn
@@ -10,7 +9,7 @@ from utils.server_utils import verificacao_usuario_banco
 user = APIRouter()
 security = HTTPBasic()
 
-async def autenticar_usuario(credentials: HTTPBasicCredentials = Depends(security)):
+def autenticar_usuario(credentials:HTTPBasicCredentials = Depends(security)):
   if not verificacao_usuario_banco(credentials.username, credentials.password):
     raise HTTPException(
       status_code=status.HTTP_401_UNAUTHORIZED,
@@ -18,20 +17,18 @@ async def autenticar_usuario(credentials: HTTPBasicCredentials = Depends(securit
       headers={"WWW-Authenticate": "Basic"},
     )
   
-  return credentials.username
+  return True
 
-@user.get('/users')
+@user.get("/users")
 async def find_all_users():
   return usersEntity(conn.local.user.find())
 
 @user.post("/users")
-async def create_user(user:User, str = Depends(autenticar_usuario)):
-
+async def create_user(user:User, verification = Depends(autenticar_usuario)):
   new_user = dict(user)
-    
-  if "id" in new_user:
-   del new_user["id"]
 
+  if "id" in new_user:
+    del new_user["id"]
 
   password = generate_password()
   new_user["password"] = password
@@ -45,23 +42,21 @@ async def create_user(user:User, str = Depends(autenticar_usuario)):
 
   return userEntity(user_from_db)
 
-@user.get("/generate_password", response_model=ResponseStatus)
-async def generate_password(user:str, password:str, str = Depends(autenticar_usuario)):
-    password = generate_password()
+@user.get("/generate_new_password", response_model=ResponseStatus)
+async def generate_new_password(verification = Depends(autenticar_usuario)):
+  password = generate_password()
+  data = {"password": password}
+  response_status = ResponseStatus(data=data, path="/generate_password")
 
-    data = {"password": password}
-    response_status = ResponseStatus(data=data, path="/generate_password")
-
-    return response_status
+  return response_status
 
 @user.post("/request_password", response_model=ResponseStatus)
-async def request_password(user:str, password:str, desc:str, str = Depends(autenticar_usuario)):
-   
-   password = generate_password()
-   data = {"password": password}
-   response_status = ResponseStatus(data=data, path="/request_password")
+async def request_password(user:str, password:str, desc:str, verification = Depends(autenticar_usuario)):
+  password = generate_password()
+  data = {"password": password}
+  response_status = ResponseStatus(data=data, path="/request_password")
 
-   return response_status
+  return response_status
    
 @user.get("/list_passwords_description")
 async def list_passwords_description():
