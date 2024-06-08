@@ -1,6 +1,6 @@
 # passwordAdministrator
 
-Projeto que usa fastAPI, MongoDB e um sistema de geração de senhas para testes. Feito para criar usuários, gerar novas senhas e descrição de senhas.  
+Projeto que usa fastAPI, MongoDB e um sistema de geração de senhas para testes. Feito para criar usuários, gerar novas senhas e adicionar uma descrição para cada senha.  
 
 Para instalar as bibliotecas, execute:
 ```sh
