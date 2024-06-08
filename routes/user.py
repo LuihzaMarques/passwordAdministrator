@@ -41,7 +41,7 @@ async def generate_new_password(description_password:str, verification = Depends
   return response_status
 
 @user.post("/request_password", response_model=ResponseStatus)
-async def request_password(user:str, password:str, description_password:str, verification = Depends(authenticate_user)):
+async def request_password(password:str, description_password:str, verification = Depends(authenticate_user)):
   password = generate_password()
   data = {"password": password, "description": description_password}
   response_status = ResponseStatus(data=data, path="/request_password")
