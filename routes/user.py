@@ -34,7 +34,7 @@ async def create_user(user:User, verification = Depends(authenticate_user)):
 async def generate_new_password(verification = Depends(authenticate_user)):
   password = generate_password()
   data = {"password": password}
-  response_status = ResponseStatus(data=data, path="/generate_password")
+  response_status = ResponseStatus(data=data, path="/generate_new_password")
 
   return response_status
 
