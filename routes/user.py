@@ -1,30 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import APIRouter, Depends
+from typing import Optional
 from config.db import conn
 from schemas.user import userEntity, usersEntity, userPasswordDescription, usersPasswordDescription
 from models.user import ResponseStatus, User, Password 
 from utils.password_utils import generate_password
-from utils.server_utils import verificacao_usuario_banco
+from utils.server_utils import authenticate_user
 
 user = APIRouter()
-security = HTTPBasic()
-
-def autenticar_usuario(credentials:HTTPBasicCredentials = Depends(security)):
-  if not verificacao_usuario_banco(credentials.username, credentials.password):
-    raise HTTPException(
-      status_code=status.HTTP_401_UNAUTHORIZED,
-      detail="Invalid authentication credentials",
-      headers={"WWW-Authenticate": "Basic"},
-    )
-  
-  return True
 
 @user.get("/users")
 async def find_all_users():
   return usersEntity(conn.local.user.find())
 
 @user.post("/users")
-async def create_user(user:User, verification = Depends(autenticar_usuario)):
+async def create_user(user:User):
   new_user = dict(user)
 
   if "id" in new_user:
@@ -43,17 +32,18 @@ async def create_user(user:User, verification = Depends(autenticar_usuario)):
   return userEntity(user_from_db)
 
 @user.get("/generate_new_password", response_model=ResponseStatus)
-async def generate_new_password(verification = Depends(autenticar_usuario)):
+async def generate_new_password(description_password:str, verification = Depends(authenticate_user)):
   password = generate_password()
-  data = {"password": password}
-  response_status = ResponseStatus(data=data, path="/generate_password")
+
+  data = {"password": password, "description": description_password}
+  response_status = ResponseStatus(data=data, path="/generate_new_password")
 
   return response_status
 
 @user.post("/request_password", response_model=ResponseStatus)
-async def request_password(user:str, password:str, desc:str, verification = Depends(autenticar_usuario)):
+async def request_password(user:str, password:str, description_password:str, verification = Depends(authenticate_user)):
   password = generate_password()
-  data = {"password": password}
+  data = {"password": password, "description": description_password}
   response_status = ResponseStatus(data=data, path="/request_password")
 
   return response_status
