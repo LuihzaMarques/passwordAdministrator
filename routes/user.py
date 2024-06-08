@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from typing import Optional
 from config.db import conn
 from schemas.user import userEntity, usersEntity, userPasswordDescription, usersPasswordDescription
 from models.user import ResponseStatus, User, Password 
@@ -12,7 +13,7 @@ async def find_all_users():
   return usersEntity(conn.local.user.find())
 
 @user.post("/users")
-async def create_user(user:User, verification = Depends(authenticate_user)):
+async def create_user(user:User):
   new_user = dict(user)
 
   if "id" in new_user:
@@ -31,17 +32,19 @@ async def create_user(user:User, verification = Depends(authenticate_user)):
   return userEntity(user_from_db)
 
 @user.get("/generate_new_password", response_model=ResponseStatus)
-async def generate_new_password(verification = Depends(authenticate_user)):
-  password = generate_password()
-  data = {"password": password}
+async def generate_new_password(description_password:str, password:Optional[str] = None, verification = Depends(authenticate_user)):
+  if password == None:
+    password = generate_password()
+
+  data = {"password": password, "description": description_password}
   response_status = ResponseStatus(data=data, path="/generate_new_password")
 
   return response_status
 
 @user.post("/request_password", response_model=ResponseStatus)
-async def request_password(user:str, password:str, desc:str, verification = Depends(authenticate_user)):
+async def request_password(user:str, password:str, description_password:str, verification = Depends(authenticate_user)):
   password = generate_password()
-  data = {"password": password}
+  data = {"password": password, "description": description_password}
   response_status = ResponseStatus(data=data, path="/request_password")
 
   return response_status
