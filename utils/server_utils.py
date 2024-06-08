@@ -5,11 +5,11 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 security = HTTPBasic()
 
 def database_user_verification(username, password):
-    for x in conn.local.user.find({}, {"_id": 0, "name": 0}):
-        if username == x["user"] and password == x["password"]:
-            return True
+  for x in conn.local.user.find({}, {"_id": 0, "name": 0}):
+    if username == x["user"] and password == x["password"]:
+      return True
 
-    return False
+  return False
 
 def authenticate_user(credentials:HTTPBasicCredentials = Depends(security)):
   if not database_user_verification(credentials.username, credentials.password):
