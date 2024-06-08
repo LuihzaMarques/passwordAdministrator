@@ -32,9 +32,8 @@ async def create_user(user:User):
   return userEntity(user_from_db)
 
 @user.get("/generate_new_password", response_model=ResponseStatus)
-async def generate_new_password(description_password:str, password:Optional[str] = None, verification = Depends(authenticate_user)):
-  if password == None:
-    password = generate_password()
+async def generate_new_password(description_password:str, verification = Depends(authenticate_user)):
+  password = generate_password()
 
   data = {"password": password, "description": description_password}
   response_status = ResponseStatus(data=data, path="/generate_new_password")
