@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends
-from typing import Optional
 from config.db import conn
-from schemas.user import userEntity, usersEntity, userPasswordDescription, usersPasswordDescription
+from schemas.user import user_entity
 from models.user import ResponseStatus, User, Password 
 from utils.password_utils import generate_password
 from utils.server_utils import authenticate_user
+from utils.db_utils import list_all_users, list_all_user_passwords
 
 user = APIRouter()
 
 @user.get("/users")
 async def find_all_users():
-  return usersEntity(conn.local.user.find())
+  return list_all_users()
 
 @user.post("/users")
 async def create_user(user:User):
@@ -29,7 +29,7 @@ async def create_user(user:User):
   user_from_db["password"] = password
   user_from_db["id"] = str(id) 
 
-  return userEntity(user_from_db)
+  return user_entity(user_from_db)
 
 @user.get("/generate_new_password", response_model=ResponseStatus)
 async def generate_new_password(description_password:str, verification = Depends(authenticate_user)):
@@ -48,6 +48,6 @@ async def request_password(password:str, description_password:str, verification 
 
   return response_status
    
-@user.get("/list_passwords_description")
-async def list_passwords_description():
-  return usersPasswordDescription(conn.local.user.find())
+@user.get("/list_all_passwords_created")
+async def list_all_passwords_created():
+  return list_all_user_passwords()
