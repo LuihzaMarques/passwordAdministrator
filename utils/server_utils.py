@@ -1,4 +1,3 @@
-from config.db import conn
 from utils.db_utils import database_user_verification
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
