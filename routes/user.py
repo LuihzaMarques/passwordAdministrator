@@ -4,7 +4,7 @@ from schemas.user import user_entity
 from models.user import ResponseStatus, User, Password 
 from utils.password_utils import generate_password
 from utils.server_utils import authenticate_user
-from utils.db_utils import list_all_users, list_all_user_passwords
+from utils.db_utils import list_all_users, list_all_user_passwords, create_user_db
 
 user = APIRouter()
 
@@ -14,22 +14,9 @@ async def find_all_users():
 
 @user.post("/users")
 async def create_user(user:User):
-  new_user = dict(user)
-
-  if "id" in new_user:
-    del new_user["id"]
-
-  password = generate_password()
-  new_user["password"] = password
-
-  id = conn.local.user.insert_one(new_user).inserted_id
-
-  user_from_db = conn.local.user.find_one({"_id": id})
-
-  user_from_db["password"] = password
-  user_from_db["id"] = str(id) 
-
-  return user_entity(user_from_db)
+  new_password = generate_new_password()
+  new_user_db = create_user_db(user, new_password)
+  return user_entity(new_user_db)
 
 @user.get("/generate_new_password", response_model=ResponseStatus)
 async def generate_new_password(description_password:str, verification = Depends(authenticate_user)):
