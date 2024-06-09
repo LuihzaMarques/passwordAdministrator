@@ -13,4 +13,4 @@ Para rodar o projeto é só clonar o repositório e executar o comando:
 uvicorn mainAPI:app --reload
 ```
 
-*O uso da API estará em http://localhost:8000/docs*
+O uso da API estará em http://localhost:8000/docs
