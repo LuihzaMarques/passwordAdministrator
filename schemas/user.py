@@ -2,8 +2,8 @@ def userEntity(item) -> dict:
     return {
         "id": str(item["_id"]),
         "name": item["name"],
-        "user" : item["user"],
-        "password" : item["password"]
+        "user": item["user"],
+        "password": item["password"]
     }
 
 
@@ -14,7 +14,7 @@ def usersEntity(entity) -> list:
 def userPasswordDescription(item: dict) -> dict:
     return {
       #  "description" : item["description"],
-        "password" : item["password"]
+        "password": item["password"]
     }
 
 
