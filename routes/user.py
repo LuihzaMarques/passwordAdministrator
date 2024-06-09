@@ -14,7 +14,7 @@ async def find_all_users():
 
 @user.post("/users")
 async def create_user(user:User):
-  new_password = generate_new_password()
+  new_password = generate_password()
   new_user_db = create_user_db(user, new_password)
   return user_entity(new_user_db)
 
